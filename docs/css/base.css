@@ -1,0 +1,150 @@
+/* =========================================================
+   base.css
+   Design tokens (colours, type, spacing), reset and element
+   defaults. Every other stylesheet uses these variables, so
+   a colour change only happens here.
+
+   Look: plain paper, near-black ink, grey for secondary
+   text, thin translucent rules, and two signal colours:
+   red for the flight path and key numbers, blue for things
+   worked out for you (auto-filled values, vectors, target).
+
+   Themes: js/theme-init.js sets <html data-theme="light|dark">
+   before the page draws, from the saved choice or the system
+   setting. The dark values below override the light ones.
+   ========================================================= */
+
+:root {
+  color-scheme: light;
+
+  /* Palette */
+  --paper:        #fafafa;   /* page background */
+  --ink:          #1a1a1a;   /* main text, primary button */
+  --ink-strong:   #000000;   /* primary button hover */
+  --grey:         #5f5f5f;   /* secondary text (5.9:1 on paper) */
+  --grey-soft:    #8a8a8a;   /* placeholders, minor labels */
+  --rule:         rgb(26 26 26 / 0.28);   /* borders and dividers */
+  --rule-soft:    #e2e2e2;
+  --fill:         #f0f0f0;   /* hover fills */
+  --field-focus:  #ffffff;   /* input background while typing */
+  --red:          #c9171c;
+  --blue:         #0966c7;
+
+  /* The dark results band */
+  --band:         #1a1a1a;
+  --band-ink:     #fafafa;
+  --band-soft:    rgb(255 255 255 / 0.68);
+  --band-rule:    rgb(255 255 255 / 0.2);
+  --band-red:     #ff4a4f;
+
+  /* Plot colours (read by js/plot.js) */
+  --plot-grid:    rgb(26 26 26 / 0.08);
+  --plot-ball:    #d2d2d2;
+
+  /* Type */
+  --font-sans: "Geist", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --text-label: 0.8125rem;  /* 13px  mono labels, buttons, units */
+  --text-note:  0.875rem;   /* 14px  hints under fields */
+  --text-sm:    1rem;       /* 16px  body copy, field labels */
+  --text-md:    1.125rem;   /* 18px  inputs, group titles */
+  --text-lg:    1.75rem;    /* 28px  stats */
+  --text-xl:    3.5rem;     /* 56px  result answer */
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 72px;
+
+  --radius: 3px;           /* buttons and inputs: barely rounded */
+  --gutter: clamp(16px, 3vw, 40px);
+}
+
+/* ---------- Dark theme ---------- */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --paper:        #111111;
+  --ink:          #ededed;
+  --ink-strong:   #ffffff;
+  --grey:         #a8a8a8;
+  --grey-soft:    #7a7a7a;
+  --rule:         rgb(255 255 255 / 0.24);
+  --rule-soft:    #2a2a2a;
+  --fill:         #1d1d1d;
+  --field-focus:  #000000;
+  --red:          #ff4a4f;
+  --blue:         #5aa2ff;
+
+  /* In dark mode the band is a raised panel instead of a black block */
+  --band:         #1d1d1d;
+  --band-ink:     #ededed;
+  --band-soft:    rgb(255 255 255 / 0.62);
+  --band-rule:    rgb(255 255 255 / 0.16);
+  --band-red:     #ff4a4f;
+
+  --plot-grid:    rgb(255 255 255 / 0.08);
+  --plot-ball:    #5a5a5a;
+}
+
+/* ---------- Reset ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100vh;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+img,
+svg,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+p {
+  max-width: 68ch;
+}
+
+/* Keyboard focus, everywhere */
+:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}

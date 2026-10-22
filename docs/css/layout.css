@@ -1,0 +1,131 @@
+/* =========================================================
+   layout.css
+   Page structure: left edge strip, top bar, and the
+   two-column workspace (inputs + plot), plus how it all
+   stacks on small screens.
+   ========================================================= */
+
+:root {
+  --strip: 18px;          /* width of the edge strip */
+  --topbar-height: 60px;
+  --panel-width: minmax(320px, 420px);
+}
+
+body {
+  padding-left: var(--strip);
+}
+
+/* ---------- Left edge strip (static text, no motion) ---------- */
+.edge-strip {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: var(--strip);
+  overflow: hidden;
+  color: var(--red);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: var(--strip);
+  text-transform: uppercase;
+  white-space: nowrap;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  pointer-events: none;
+}
+
+/* ---------- Top bar ---------- */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: var(--space-4);
+  height: var(--topbar-height);
+  padding: 0 var(--gutter);
+  background: var(--paper);
+  border-bottom: 1px solid var(--rule-soft);
+}
+
+.topbar__actions {
+  display: flex;
+  justify-self: end;
+  gap: var(--space-2);
+}
+
+/* ---------- Workspace: inputs left, plot right ---------- */
+.workspace {
+  display: grid;
+  grid-template-columns: var(--panel-width) minmax(0, 1fr);
+  gap: var(--space-7);
+  align-items: start;
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: var(--space-6) var(--gutter) var(--space-8);
+}
+
+.panel {
+  position: sticky;
+  top: calc(var(--topbar-height) + var(--space-5));
+  max-height: calc(100vh - var(--topbar-height) - var(--space-6));
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.stage {
+  display: grid;
+  gap: var(--space-6);
+  min-width: 0;
+}
+
+/* ---------- Small screens: everything stacks ---------- */
+@media (max-width: 900px) {
+  body {
+    padding-left: 0;
+  }
+
+  .edge-strip {
+    display: none;
+  }
+
+  .topbar {
+    position: static;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "brand   actions"
+      "modes   modes";
+    height: auto;
+    padding-top: var(--space-3);
+    padding-bottom: var(--space-3);
+    row-gap: var(--space-3);
+  }
+
+  .wordmark         { grid-area: brand; }
+  .topbar__actions  { grid-area: actions; }
+  .mode-switch      { grid-area: modes; justify-self: start; }
+
+  .workspace {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-6);
+    padding-top: var(--space-5);
+  }
+
+  .panel {
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+}
+
+/* Very narrow phones: the theme button shows only its icon */
+@media (max-width: 420px) {
+  .theme-toggle__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+}

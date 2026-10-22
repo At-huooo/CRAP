@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>C.R.A.P. — Cycloid Ramp Accurate Prediction</title>
+  <meta name="description" content="Predict the flight of a ball launched from a cycloid ramp, or find the drop height that lands it on a target.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+
+  <!-- Sets light/dark before the page draws (plain script, runs immediately) -->
+  <script src="js/theme-init.js"></script>
+  <script type="module" src="js/main.js"></script>
+</head>
+<body>
+  <!-- Static strip down the left edge -->
+  <div class="edge-strip" aria-hidden="true">
+    +++ Cycloid ramp accurate prediction +++ Cycloid ramp accurate prediction
+    +++ Cycloid ramp accurate prediction +++ Cycloid ramp accurate prediction
+  </div>
+
+  <!-- ============ Top bar ============ -->
+  <header class="topbar">
+    <a class="wordmark" href="./" aria-label="C.R.A.P. home">
+      <svg class="wordmark__icon" viewBox="0 0 36 20" aria-hidden="true">
+        <path d="M2 3 L2.07 3.53 L2.57 5.05 L3.44 6.69 L4.86 8.58 L6.87 10.57 L9.48 12.45 L12.63 14.06 L16.21 15.24 L20.08 15.89 L24.05 15.95 L27.95 15.40 L31.59 14.31 L33.81 13.32" />
+        <circle cx="4.2" cy="3.4" r="2.2" />
+      </svg>
+      <span class="wordmark__name">C.R.A.P.</span>
+    </a>
+
+    <nav class="mode-switch" role="tablist" aria-label="Mode">
+      <button class="mode-switch__tab" role="tab" id="tab-trajectory"
+              aria-controls="mode-trajectory" data-mode="trajectory">
+        Trajectory
+      </button>
+      <button class="mode-switch__tab" role="tab" id="tab-drop-height"
+              aria-controls="mode-drop-height" data-mode="drop-height">
+        Drop height
+      </button>
+    </nav>
+
+    <div class="topbar__actions">
+      <button class="pill" id="theme-toggle" type="button" aria-pressed="false">
+        <span class="pill__icon" aria-hidden="true"></span>
+        <span class="theme-toggle__label">Dark mode</span>
+      </button>
+      <button class="pill server-status" id="server-status" type="button" data-state="checking">
+        <span class="server-status__dot" aria-hidden="true"></span>
+        <span class="server-status__label">Checking server…</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ============ Workspace ============ -->
+  <main class="workspace">
+    <!-- Left: the form for the active mode -->
+    <aside class="panel">
+      <div class="section-bar">
+        <span class="section-bar__number">01.</span>
+        <h2 class="section-bar__title">Inputs</h2>
+        <span class="section-bar__dot" aria-hidden="true"></span>
+      </div>
+
+      <section class="mode" id="mode-trajectory" role="tabpanel" aria-labelledby="tab-trajectory">
+        <form class="mode__form" id="trajectory-form" novalidate>
+          <div class="form-groups" data-groups></div>
+          <div class="form-actions">
+            <button class="button button--primary" type="submit">Run simulation</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="mode" id="mode-drop-height" role="tabpanel" aria-labelledby="tab-drop-height" hidden>
+        <form class="mode__form" id="drop-height-form" novalidate>
+          <div class="form-groups" data-groups></div>
+          <div class="form-actions">
+            <button class="button button--primary" type="submit">Calculate drop height</button>
+          </div>
+        </form>
+      </section>
+    </aside>
+
+    <!-- Right: plot and results -->
+    <section class="stage" aria-label="Results">
+      <div class="plot-card">
+        <div class="section-bar">
+          <span class="section-bar__number">02.</span>
+          <h2 class="section-bar__title" id="plot-title">Flight path</h2>
+          <div class="section-bar__controls">
+            <label class="toggle">
+              <input type="checkbox" id="true-scale" checked>
+              <span>True scale</span>
+            </label>
+            <button class="button button--small" type="button" id="replay" disabled>Play flight</button>
+          </div>
+        </div>
+
+        <div class="plot" id="plot">
+          <canvas class="plot__canvas" aria-label="Plot of the ball's flight path" role="img"></canvas>
+          <p class="plot__empty" id="plot-empty"></p>
+          <div class="plot__tooltip" id="plot-tooltip" hidden></div>
+        </div>
+
+        <ul class="plot-legend" id="plot-legend" hidden>
+          <li><span class="swatch swatch--path"></span>This run</li>
+          <li data-legend="ghost"><span class="swatch swatch--ghost"></span>Previous run</li>
+          <li data-legend="target"><span class="swatch swatch--target"></span>Target</li>
+          <li><span class="swatch swatch--vector"></span>Velocity (hover)</li>
+        </ul>
+      </div>
+
+      <div class="results" id="results" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <!-- ============ Server settings dialog ============ -->
+  <dialog class="dialog" id="server-dialog" aria-labelledby="server-dialog-title">
+    <form method="dialog" class="dialog__body" id="server-form">
+      <h2 id="server-dialog-title">Server</h2>
+      <p class="dialog__text">
+        The calculations run on the backend. Point this page at your local server
+        or at the deployed one on Render.
+      </p>
+      <label class="field">
+        <span class="field__label">Server address</span>
+        <span class="field__control">
+          <input class="field__input" type="url" id="server-url" required spellcheck="false"
+                 placeholder="http://localhost:8000">
+        </span>
+      </label>
+      <p class="dialog__status" id="server-dialog-status"></p>
+      <div class="dialog__actions">
+        <button class="button button--small" type="button" id="server-reset">Use default</button>
+        <button class="button button--small" value="cancel" formnovalidate>Cancel</button>
+        <button class="button button--primary button--small" type="submit" value="save">Save and check</button>
+      </div>
+    </form>
+  </dialog>
+</body>
+</html>

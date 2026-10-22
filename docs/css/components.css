@@ -1,0 +1,730 @@
+/* =========================================================
+   components.css
+   Individual UI pieces, in the order they appear on the
+   page: wordmark, mode switch, top-bar pills (theme, server),
+   section bars, buttons, form groups and fields, plot,
+   results, dialog.
+
+   No gradients, shadows or decorative motion: structure
+   comes from thin rules and type alone.
+   ========================================================= */
+
+/* ---------- Shared: mono labels ---------- */
+.mode-switch__tab,
+.pill,
+.section-bar,
+.button,
+.toggle,
+.plot-legend,
+.stat__label,
+.message__title {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+/* ---------- Wordmark ---------- */
+.wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.wordmark__icon {
+  width: 34px;
+  height: 19px;
+  overflow: visible;
+}
+
+.wordmark__icon path {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.wordmark__icon circle {
+  fill: var(--red);
+}
+
+.wordmark__name {
+  font-size: 1.375rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* ---------- Mode switch (text tabs in the top bar) ---------- */
+.mode-switch {
+  display: flex;
+  gap: var(--space-6);
+}
+
+.mode-switch__tab {
+  padding: var(--space-2) 0;
+  border: 0;
+  background: none;
+  color: var(--grey);
+  font-size: 0.875rem;
+  text-underline-offset: 6px;
+}
+
+.mode-switch__tab:hover {
+  color: var(--ink);
+}
+
+.mode-switch__tab[aria-selected="true"] {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+}
+
+/* ---------- Pills: small outlined buttons in the top bar ---------- */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 32px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--paper);
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.pill:hover {
+  background: var(--fill);
+}
+
+/* Theme toggle icon: a half-filled circle */
+.pill__icon {
+  position: relative;
+  width: 13px;
+  height: 13px;
+  overflow: hidden;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+}
+
+.pill__icon::after {
+  content: "";
+  position: absolute;
+  inset: 0 50% 0 0;
+  background: currentColor;
+}
+
+.server-status__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--grey);
+}
+
+.server-status[data-state="online"]  .server-status__dot { background: var(--blue); }
+.server-status[data-state="offline"] .server-status__dot,
+.server-status[data-state="blocked"] .server-status__dot { background: var(--red); }
+
+/* ---------- Section bar: "01.  INPUTS  •" in an open box ---------- */
+.section-bar {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-5);
+  flex-wrap: wrap;
+  row-gap: var(--space-2);
+  min-height: 54px;           /* same height with or without controls, so bars line up */
+  padding: var(--space-2) var(--space-4) var(--space-3);
+  border: 1px solid var(--rule);
+  border-bottom: 0;
+}
+
+.section-bar__title {
+  font: inherit;
+  white-space: nowrap;
+}
+
+.section-bar__dot {
+  width: 6px;
+  height: 6px;
+  margin: 0 0 5px auto;
+  border-radius: 50%;
+  background: var(--red);
+}
+
+.section-bar__controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-left: auto;
+}
+
+/* ---------- Buttons ---------- */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  height: 42px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--paper);
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+/* "+ Run simulation +" */
+.button::before,
+.button::after {
+  content: "+";
+}
+
+.button:hover:not(:disabled) {
+  background: var(--fill);
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.button--primary {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.button--primary:hover:not(:disabled) {
+  background: var(--ink-strong);
+}
+
+/* Small buttons drop the plus signs */
+.button--small {
+  height: 32px;
+  padding: 0 var(--space-3);
+}
+
+.button--small::before,
+.button--small::after {
+  content: none;
+}
+
+/* ---------- Form ---------- */
+.mode__form {
+  display: grid;
+}
+
+.form-groups {
+  display: grid;
+}
+
+.form-actions {
+  position: sticky;
+  bottom: 0;
+  padding: var(--space-4) 0;
+  background: var(--paper);
+  border-top: 1px solid var(--rule);
+}
+
+.form-actions .button {
+  width: 100%;
+  height: 50px;
+  font-size: 0.875rem;
+}
+
+/* ---------- Form groups ---------- */
+.group {
+  min-width: 0;            /* fieldsets default to min-content width */
+  padding: var(--space-4) 0 var(--space-5);
+  border: 0;
+  border-top: 1px solid var(--rule-soft);
+}
+
+.form-groups > .group:first-child {
+  border-top: 0;
+}
+
+/* Let the <legend> sit in the normal flow instead of on the border */
+legend.group__title {
+  float: left;
+}
+
+legend.group__title + * {
+  clear: both;
+}
+
+.group__title {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  width: 100%;
+  padding: 0;
+  font-size: 1.25rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.group__text {
+  padding-top: var(--space-1);   /* padding, not margin: margins collapse after the floated legend */
+  color: var(--grey);
+  font-size: var(--text-sm);
+}
+
+.group__fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-5) var(--space-4);
+  padding-top: var(--space-4);
+}
+
+/* Collapsible groups (ball and air, solver): "+" when closed, "−" when open */
+details.group > summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+details.group > summary::-webkit-details-marker {
+  display: none;
+}
+
+details.group > summary::after {
+  content: "+";
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-weight: 400;
+}
+
+details.group[open] > summary::after {
+  content: "−";
+}
+
+details.group:not([open]) {
+  padding-bottom: var(--space-4);
+}
+
+.group__summary {
+  color: var(--grey);
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+/* ---------- Fields ---------- */
+.field {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);   /* lets the input shrink to the column */
+  gap: 6px;
+  align-content: start;
+}
+
+.field--wide {
+  grid-column: 1 / -1;
+}
+
+.field__label {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: var(--text-sm);
+  font-weight: 500;
+}
+
+.field__symbol {
+  color: var(--grey);
+  font-style: italic;
+}
+
+.field__control {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: transparent;
+}
+
+.field__control:hover {
+  border-color: var(--grey);
+}
+
+.field__control:focus-within {
+  border-color: var(--ink);
+  background: var(--field-focus);
+}
+
+.field__input {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  height: 46px;
+  padding: 0 var(--space-3);
+  border: 0;
+  background: transparent;
+  font-size: var(--text-md);
+  font-variant-numeric: tabular-nums;
+  outline: none;
+}
+
+.field__input::placeholder {
+  color: var(--grey-soft);
+}
+
+/* Units stay lowercase: "m" and "M" are different units */
+.field__unit {
+  flex: none;
+  padding-right: var(--space-3);
+  color: var(--grey);
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+}
+
+.field__note {
+  color: var(--grey);
+  font-size: var(--text-note);
+  line-height: 1.4;
+}
+
+.field__note:empty {
+  display: none;
+}
+
+.field__note[data-tone="error"],
+.field__note[data-tone="warn"] {
+  color: var(--red);
+}
+
+.field__note[data-tone="auto"] {
+  color: var(--blue);
+}
+
+.field[data-state="error"] .field__control {
+  border-color: var(--red);
+}
+
+/* Launch speed filled in from the ramp: blue dashed outline */
+.field[data-auto="true"] .field__control {
+  border: 1px dashed var(--blue);
+}
+
+.field[data-auto="true"] .field__input {
+  color: var(--blue);
+}
+
+/* ---------- Toggle (checkbox) ---------- */
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.toggle input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--ink);
+}
+
+/* ---------- Plot ---------- */
+.plot {
+  position: relative;
+  height: clamp(260px, min(54vh, 60vw), 560px);
+  border: 1px solid var(--rule);
+  background: var(--paper);
+}
+
+.plot__canvas {
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+}
+
+.plot__empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  max-width: none;
+  padding: var(--space-6);
+  background: color-mix(in srgb, var(--paper) 85%, transparent);   /* fade the empty grid behind the text */
+  color: var(--grey);
+  text-align: center;
+  pointer-events: none;
+}
+
+.plot__empty:empty {
+  display: none;
+}
+
+.plot__tooltip {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 2px var(--space-4);
+  padding: var(--space-2) var(--space-3);
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: var(--radius);
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  line-height: 1.6;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.plot__tooltip dt {
+  opacity: 0.7;
+}
+
+.plot__tooltip dd {
+  margin: 0;
+  text-align: right;
+}
+
+/* ---------- Plot legend ---------- */
+.plot-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-5);
+  padding: var(--space-3) 0 0;
+  color: var(--grey);
+  list-style: none;
+}
+
+.plot-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.swatch {
+  width: 20px;
+  border-top: 2px dotted var(--red);
+}
+
+.swatch--ghost  { border-top-color: var(--grey); }
+.swatch--target { border-top: 1px dashed var(--blue); }
+.swatch--vector { border-top: 1px dashed var(--blue); width: 14px; position: relative; }
+
+.swatch--vector::after {
+  content: "";
+  position: absolute;
+  right: -2px;
+  top: -4px;
+  border: 3px solid transparent;
+  border-left: 5px solid var(--blue);
+}
+
+/* ---------- Results ---------- */
+.results {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.results:empty {
+  display: none;
+}
+
+/* The dark band holding the answer and the figures */
+.result-band {
+  padding: var(--space-6);
+  border: 1px solid var(--band-rule);
+  background: var(--band);
+  color: var(--band-ink);
+}
+
+.answer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-5);
+}
+
+.answer__label {
+  margin-bottom: var(--space-2);
+  font-size: 1.25rem;
+}
+
+.answer__label::before {
+  content: "→ ";
+}
+
+.answer__value {
+  color: var(--band-red);
+  font-size: clamp(2.5rem, 5vw, var(--text-xl));
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.035em;
+  line-height: 1;
+}
+
+.answer__unit {
+  margin-left: 8px;
+  color: var(--band-soft);
+  font-size: var(--text-lg);
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+/* Buttons on the dark band */
+.result-band .button {
+  border-color: var(--band-rule);
+  background: transparent;
+  color: var(--band-ink);
+}
+
+.result-band .button:hover {
+  background: rgb(255 255 255 / 0.08);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--space-5);
+  margin: var(--space-6) 0 0;
+  padding: var(--space-5) 0 0;
+  border-top: 1px solid var(--band-rule);
+  list-style: none;
+}
+
+.answer + .stats:not(:first-child) {
+  margin-top: var(--space-6);
+}
+
+.stats:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.stat {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.stat__label {
+  color: var(--band-soft);
+}
+
+.stat__value {
+  font-size: var(--text-lg);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.stat__unit {
+  margin-left: 4px;
+  color: var(--band-soft);
+  font-size: var(--text-sm);
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+/* Error / warning messages: outlined box, mono title */
+.message {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-5);
+  border: 1px solid var(--rule);
+  color: var(--grey);
+}
+
+.message__title {
+  color: var(--ink);
+}
+
+.message[data-tone="error"] {
+  border-color: var(--red);
+}
+
+.message[data-tone="error"] .message__title,
+.message[data-tone="warn"] .message__title {
+  color: var(--red);
+}
+
+/* ---------- Dialog ---------- */
+.dialog {
+  width: min(460px, calc(100vw - 32px));
+  padding: 0;
+  border: 1px solid var(--ink);
+  border-radius: var(--radius);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.dialog::backdrop {
+  background: rgb(0 0 0 / 0.5);
+}
+
+.dialog__body {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-5);
+}
+
+.dialog__body h2 {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.dialog__text,
+.dialog__status {
+  color: var(--grey);
+}
+
+.dialog__status:empty {
+  display: none;
+}
+
+.dialog__status[data-tone="error"] {
+  color: var(--red);
+}
+
+.dialog__status[data-tone="ok"] {
+  color: var(--blue);
+}
+
+.dialog__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.dialog__actions .button:first-child {
+  margin-right: auto;
+}
+
+/* ---------- Small screens ---------- */
+@media (max-width: 900px) {
+  .result-band {
+    padding: var(--space-5);
+  }
+
+  .section-bar {
+    column-gap: var(--space-3);
+  }
+
+  /* Two figures per row on phones */
+  .stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  /* Controls drop under the title instead of squeezing it */
+  .section-bar__controls {
+    flex-basis: 100%;
+    margin-left: 0;
+  }
+}

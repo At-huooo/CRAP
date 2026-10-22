@@ -7,10 +7,10 @@ def simulate_trajectory(
     v0: float,                  # launch speed (m/s)
     angle_deg: float,           # launch angle beta, degrees above horizontal
     launch_height: float = 0.0, # h_l (m), ground is y = 0
-    radius: float = 0.02135,    # ball radius r (m)
-    mass: float = 0.0459,       # m (kg)
+    radius: float = 0.048,    # ball radius r (m)
+    mass: float = 0.04593,       # m (kg)
     drag_coeff: float = 0.47,   # Cd
-    air_density: float = 1.225, # rho (kg/m^3)
+    air_density: float = 1.293, # rho (kg/m^3)
     dt: float = 0.001,          # time step (s)
     sample_dt: float = 0.01,    # spacing of returned points (s)
     max_time: float = 90.0,     # safety cap so the loop always ends
@@ -114,9 +114,9 @@ def cal_drop_height(
     ramp_height: float,         # h0: height of the ramp (m)
     slip_coeff: float,          # eta: slip energy-loss coefficient
     rolling_res: float,         # Crr: rolling resistance coefficient
-    radius: float = 0.02135,    # ball radius (m)
-    mass: float = 0.0459,       # ball mass (kg)
-    air_density: float = 1.225, # rho (kg/m^3)
+    radius: float = 0.048,    # ball radius (m)
+    mass: float = 0.04593,       # ball mass (kg)
+    air_density: float = 1.293, # rho (kg/m^3)
     drag_coeff: float = 0.47,   # Cd
     launch_height: float = 0.0, # h_l: height the ball leaves the ramp (m)
     max_drop_height: float = 3.0,  # give up above this drop height (m)
