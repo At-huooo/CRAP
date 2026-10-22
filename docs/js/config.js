@@ -13,8 +13,7 @@
 
 export const LOCAL_API_BASE = "http://localhost:8000";
 
-// TODO: replace with your Render URL, e.g. "https://crap-backend.onrender.com"
-export const PRODUCTION_API_BASE = "";
+export const PRODUCTION_API_BASE = "https://crap-backend-886393049388.europe-west4.run.app";
 
 const STORAGE_KEY = "crap.apiBase";
 
