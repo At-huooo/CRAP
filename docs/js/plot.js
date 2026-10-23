@@ -1,13 +1,15 @@
 /* =========================================================
    plot.js
-   Draws the flight path on a <canvas>: grid, floor, launch
-   stand, the path as a red dotted line, the ball, peak and
-   landing markers, an optional target and a grey dotted
+   Draws the flight on a <canvas>: grid, floor, the end of
+   the ramp, the path, the ball with its shadow, peak and
+   landing labels, an optional target and a dashed
    "previous run" for comparison. Hovering a point shows its
-   values and the ball's velocity as a blue dashed arrow.
+   values and the ball's velocity as an arrow.
 
-   Nothing moves on its own. "Play flight" (replay()) runs
-   the ball along the path in real proportions of time.
+   Time: the ball sits at `time` seconds into the flight.
+   play() runs it along the path at half real speed,
+   setTime() moves it directly (used by the scrubber), and
+   onTime(t, point) is called whenever it moves.
 
    Coordinates: x is horizontal distance from the ramp exit,
    y is height above the floor, both in metres. The backend's
@@ -17,9 +19,10 @@
 
 import { formatNumber, formatLength } from "./format.js";
 
-const MARGIN = { top: 34, right: 32, bottom: 52, left: 68 };
-const MONO = '400 12px "Geist Mono", ui-monospace, Menlo, monospace';
-const MONO_STRONG = '500 13px "Geist Mono", ui-monospace, Menlo, monospace';
+const MARGIN = { top: 38, right: 24, bottom: 44, left: 56 };
+const FAMILY = '"Inter Tight", Inter, "Helvetica Neue", Helvetica, Arial, sans-serif';
+const FONT = `400 12px ${FAMILY}`;
+const FONT_STRONG = `600 12.5px ${FAMILY}`;
 
 export class TrajectoryPlot {
   /**
@@ -36,6 +39,11 @@ export class TrajectoryPlot {
     this.time = 0;            // where the ball is drawn, in seconds of flight
     this.hoverIndex = null;   // index of the hovered point
     this.frame = null;
+    this.playing = false;
+
+    // Hooks for the playback bar (set by stage.js)
+    this.onTime = () => {};
+    this.onPlayState = () => {};
 
     this.readColors();
     new ResizeObserver(() => this.resize()).observe(this.canvas);
@@ -61,44 +69,66 @@ export class TrajectoryPlot {
    *   peakHeight    optional exact peak height for the label (m)
    */
   show(scene) {
-    cancelAnimationFrame(this.frame);
+    this.stop();
     this.scene = scene;
     this.hoverIndex = null;
     this.hideTooltip();
     this.computeBounds();
-    this.time = this.flightTime();
-    this.draw();
+    this.setTime(this.flightTime());
   }
 
   clear() {
-    cancelAnimationFrame(this.frame);
+    this.stop();
     this.scene = null;
     this.hideTooltip();
     this.draw();
+    this.onTime(0, null);
   }
 
-  /** Run the ball along the path. Only happens when the user asks. */
-  replay() {
+  /** Play from where the ball is (or from the start if it has landed); pause if playing. */
+  togglePlay() {
+    if (this.playing) this.stop();
+    else this.play();
+  }
+
+  play() {
     if (!this.scene) return;
-    cancelAnimationFrame(this.frame);
+    this.stop();
 
     const total = this.flightTime();
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      this.time = total;
-      this.draw();
+      this.setTime(total);
       return;
     }
 
+    if (this.time >= total - 1e-9) this.time = 0;
     // Real flights last well under a second; show them at half speed.
-    const duration = Math.max(800, total * 2000);
+    const speed = 0.5;
+    const startTime = this.time;
     const start = performance.now();
+    this.setPlaying(true);
+
     const tick = (now) => {
-      const progress = Math.min(1, (now - start) / duration);
-      this.time = total * progress;   // linear: time on screen runs evenly
-      this.draw();
-      if (progress < 1) this.frame = requestAnimationFrame(tick);
+      const t = Math.min(total, startTime + ((now - start) / 1000) * speed);
+      this.setTime(t, { keepPlaying: true });
+      if (t < total) this.frame = requestAnimationFrame(tick);
+      else this.setPlaying(false);
     };
     this.frame = requestAnimationFrame(tick);
+  }
+
+  stop() {
+    cancelAnimationFrame(this.frame);
+    this.setPlaying(false);
+  }
+
+  /** Put the ball at time t (seconds). */
+  setTime(t, { keepPlaying = false } = {}) {
+    if (!keepPlaying) this.stop();
+    if (!this.scene) return;
+    this.time = Math.max(0, Math.min(this.flightTime(), t));
+    this.draw();
+    this.onTime(this.time, this.stateAt(this.time));
   }
 
   setTrueScale(on) {
@@ -109,6 +139,12 @@ export class TrajectoryPlot {
 
   flightTime() {
     return this.scene?.points.at(-1).t ?? 0;
+  }
+
+  setPlaying(playing) {
+    if (this.playing === playing) return;
+    this.playing = playing;
+    this.onPlayState(playing);
   }
 
   /* ---------- Sizing and scales ---------- */
@@ -132,18 +168,18 @@ export class TrajectoryPlot {
     const plotH = this.height - MARGIN.top - MARGIN.bottom;
 
     // Data extents, including the previous run and the target.
-    let maxX = 0.5;
-    let maxY = 0.2;
+    let maxX = 1;
+    let maxY = 0.5;
     if (this.scene) {
       const all = [...this.scene.points, ...(this.scene.ghost ?? [])];
       maxX = Math.max(...all.map((p) => p.x), this.scene.targetX ?? 0);
       maxY = Math.max(...all.map((p) => p.y + this.scene.radius));
     }
 
-    let xMin = -0.06 * maxX;
+    let xMin = -0.1 * maxX;
     let xMax = maxX * 1.06;
     let yMin = 0;
-    let yMax = maxY * 1.2;
+    let yMax = maxY * 1.18;
 
     if (this.trueScale) {
       // Same scale on both axes: stretch whichever axis has room to spare.
@@ -167,6 +203,10 @@ export class TrajectoryPlot {
     return this.bounds.plotW / (this.bounds.xMax - this.bounds.xMin);
   }
 
+  pxPerMetreY() {
+    return this.bounds.plotH / (this.bounds.yMax - this.bounds.yMin);
+  }
+
   /** Ball radius on screen: true size, but never smaller than 5 px. */
   ballRadiusPx() {
     return Math.max(5, this.scene.radius * this.pxPerMetre());
@@ -178,12 +218,15 @@ export class TrajectoryPlot {
     this.colors = {
       ink: v("--ink"),
       grey: v("--grey"),
-      rule: v("--rule"),
+      greySoft: v("--grey-soft"),
+      rule: v("--rule-strong"),
       grid: v("--plot-grid"),
+      bg: v("--plot-bg"),
       ball: v("--plot-ball"),
-      red: v("--red"),
-      blue: v("--blue"),
-      paper: v("--paper"),
+      stand: v("--plot-stand"),
+      rust: v("--rust"),
+      rustInk: v("--rust-ink"),
+      slate: v("--slate"),
     };
   }
 
@@ -195,30 +238,30 @@ export class TrajectoryPlot {
     ctx.clearRect(0, 0, this.width, this.height);
 
     this.drawGrid();
+    if (this.scene) this.drawLaunchStand();
     this.drawGround();
     if (!this.scene) return;
 
-    this.drawLaunchStand();
-    if (this.scene.ghost) this.drawPath(this.scene.ghost, this.colors.grey);
+    if (this.scene.ghost) this.drawGhost(this.scene.ghost);
     if (this.scene.targetX) this.drawTarget(this.scene.targetX);
-    this.drawPath(this.scene.points, this.colors.red);
+    this.drawPath(this.scene.points);
 
     const finished = this.time >= this.flightTime();
     if (finished) this.drawMarkers();
-    this.drawBall(this.positionAt(this.time));
+    this.drawBall(this.stateAt(this.time));
     if (this.hoverIndex !== null) this.drawHover(this.scene.points[this.hoverIndex]);
   }
 
   drawGrid() {
     const { ctx, colors } = this;
     const b = this.bounds;
-    const xStep = niceStep((b.xMax - b.xMin) / Math.max(2, b.plotW / 100));
+    const xStep = niceStep((b.xMax - b.xMin) / Math.max(2, b.plotW / 110));
     const yStep = niceStep((b.yMax - b.yMin) / Math.max(2, b.plotH / 70));
 
     ctx.save();
     ctx.lineWidth = 1;
-    ctx.font = MONO;
-    ctx.fillStyle = colors.grey;
+    ctx.font = FONT;
+    ctx.fillStyle = colors.greySoft;
     ctx.strokeStyle = colors.grid;
 
     // Vertical lines + x labels
@@ -227,7 +270,7 @@ export class TrajectoryPlot {
     for (let x = Math.ceil(b.xMin / xStep) * xStep; x <= b.xMax; x += xStep) {
       const [px] = this.toPx(x, 0);
       line(ctx, crisp(px), MARGIN.top, crisp(px), MARGIN.top + b.plotH);
-      ctx.fillText(tickLabel(x, xStep), px, MARGIN.top + b.plotH + 12);
+      ctx.fillText(tickLabel(x, xStep), px, MARGIN.top + b.plotH + 10);
     }
 
     // Horizontal lines + y labels
@@ -236,16 +279,17 @@ export class TrajectoryPlot {
     for (let y = yStep; y <= b.yMax; y += yStep) {
       const [, py] = this.toPx(0, y);
       line(ctx, MARGIN.left, crisp(py), MARGIN.left + b.plotW, crisp(py));
-      ctx.fillText(tickLabel(y, yStep), MARGIN.left - 12, py);
+      ctx.fillText(tickLabel(y, yStep), MARGIN.left - 10, py);
     }
 
     // Axis titles
+    ctx.fillStyle = colors.grey;
     ctx.textAlign = "right";
     ctx.textBaseline = "bottom";
-    ctx.fillText("distance (m)", MARGIN.left + b.plotW, this.height - 8);
+    ctx.fillText("Distance (m)", MARGIN.left + b.plotW, this.height - 6);
     ctx.textAlign = "left";
     ctx.textBaseline = "top";
-    ctx.fillText("height (m)", 12, 10);
+    ctx.fillText("Height (m)", 14, 10);
     ctx.restore();
   }
 
@@ -254,35 +298,90 @@ export class TrajectoryPlot {
     const [, py] = this.toPx(0, 0);
     ctx.save();
     ctx.strokeStyle = colors.ink;
-    ctx.lineWidth = 1;
+    ctx.lineWidth = 1.25;
     line(ctx, MARGIN.left, crisp(py), MARGIN.left + this.bounds.plotW, crisp(py));
     ctx.restore();
   }
 
-  /** The ramp exit: a post up to the launch height with a short lip. */
+  /**
+   * The end of the ramp: a support down to the floor and the
+   * last bit of track, leaving the exit at the launch angle.
+   */
   drawLaunchStand() {
-    const { ctx, colors } = this;
-    const h = this.scene.launchHeight;
-    const [px, ground] = this.toPx(0, 0);
-    const [, top] = this.toPx(0, h);
+    const { ctx, colors, scene } = this;
+    const h = scene.launchHeight;
+    const first = scene.points[0];
+    const angle = Math.atan2(first.vy, first.vx);      // launch angle, from the velocity
     const r = this.ballRadiusPx();
 
+    // Exit point: where the bottom of the ball leaves the track.
+    const [ex, ey] = this.toPx(0, h);
+    const [, ground] = this.toPx(0, 0);
+    // Long enough to read as track, short enough to fit left of the exit.
+    const lip = Math.max(14, Math.min(Math.max(22, r * 3), (ex - MARGIN.left) / 1.9));
+    // Curve back from the exit: along the launch direction, then flattening out.
+    const c1x = ex - lip * Math.cos(angle);
+    const c1y = ey + lip * Math.sin(angle);
+    const sx = c1x - lip * 0.9;
+    const sy = c1y;
+
+    const track = new Path2D();
+    track.moveTo(sx, sy);
+    track.quadraticCurveTo(c1x, c1y, ex, ey);
+
     ctx.save();
+    // Keep the ramp inside the plot area
+    ctx.beginPath();
+    ctx.rect(MARGIN.left, 0, this.width, ground + 1);
+    ctx.clip();
+
+    // Support: everything under the track, down to the floor
+    const body = new Path2D(track);
+    body.lineTo(ex, ground);
+    body.lineTo(sx, ground);
+    body.closePath();
+    ctx.fillStyle = colors.stand;
+    ctx.fill(body);
+
     ctx.strokeStyle = colors.ink;
-    ctx.lineWidth = 1.5;
-    if (h > 0) line(ctx, px, ground, px, top);
-    line(ctx, px - r * 2.4, top, px + r * 0.6, top);
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
+    ctx.stroke(track);
     ctx.restore();
   }
 
-  /** A dotted line through the points. */
-  drawPath(points, color) {
-    const { ctx } = this;
+  /** The flight: solid where the ball has been, faint ahead of it. */
+  drawPath(points) {
+    const { ctx, colors } = this;
+    const toPx = (p) => this.toPx(p.x, p.y);
+    const done = this.time >= this.flightTime();
+
     ctx.save();
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 2;
+    ctx.strokeStyle = colors.rust;
+    ctx.lineWidth = 2.5;
     ctx.lineCap = "round";
-    ctx.setLineDash([0.1, 5]);   // round caps turn tiny dashes into dots
+    ctx.lineJoin = "round";
+
+    if (done) {
+      strokePoints(ctx, points, toPx);
+    } else {
+      const now = this.stateAt(this.time);
+      const past = [...points.filter((p) => p.t <= this.time), now];
+      const ahead = [now, ...points.filter((p) => p.t > this.time)];
+      ctx.globalAlpha = 0.25;
+      strokePoints(ctx, ahead, toPx);
+      ctx.globalAlpha = 1;
+      strokePoints(ctx, past, toPx);
+    }
+    ctx.restore();
+  }
+
+  drawGhost(points) {
+    const { ctx, colors } = this;
+    ctx.save();
+    ctx.strokeStyle = colors.greySoft;
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([5, 5]);
     strokePoints(ctx, points, (p) => this.toPx(p.x, p.y));
     ctx.restore();
   }
@@ -290,22 +389,34 @@ export class TrajectoryPlot {
   drawTarget(targetX) {
     const { ctx, colors } = this;
     const [px, ground] = this.toPx(targetX, 0);
-    const top = MARGIN.top + 18;
+    const top = MARGIN.top + 22;
 
     ctx.save();
-    ctx.strokeStyle = colors.blue;
-    ctx.fillStyle = colors.blue;
-    ctx.lineWidth = 1;
-    ctx.setLineDash([3, 3]);
+    ctx.strokeStyle = colors.slate;
+    ctx.fillStyle = colors.slate;
+    ctx.lineWidth = 1.25;
+    ctx.setLineDash([4, 4]);
     line(ctx, crisp(px), top, crisp(px), ground);
     ctx.setLineDash([]);
-    dot(ctx, px, ground, 3);
 
-    ctx.font = MONO;
-    ctx.textAlign = px > this.width - 150 ? "right" : "left";
-    ctx.textBaseline = "top";
-    const offset = ctx.textAlign === "left" ? 6 : -6;
-    ctx.fillText(`target ${formatLength(targetX)} m`, px + offset, top);
+    // Flag
+    ctx.beginPath();
+    ctx.moveTo(crisp(px), top - 12);
+    ctx.lineTo(crisp(px) + 11, top - 7);
+    ctx.lineTo(crisp(px), top - 2);
+    ctx.closePath();
+    ctx.fill();
+    line(ctx, crisp(px), top - 12, crisp(px), top);
+
+    // Ground mark
+    ctx.lineWidth = 2;
+    line(ctx, px - 6, ground, px + 6, ground);
+
+    ctx.font = FONT_STRONG;
+    const right = px > this.width - 150;
+    ctx.textAlign = right ? "right" : "left";
+    ctx.textBaseline = "middle";
+    ctx.fillText(`Target ${formatLength(targetX)} m`, px + (right ? -8 : 16), top - 7);
     ctx.restore();
   }
 
@@ -315,57 +426,79 @@ export class TrajectoryPlot {
     const points = scene.points;
     const peak = points.reduce((a, b) => (b.y > a.y ? b : a));
     const last = points.at(-1);
+    const [, ground] = this.toPx(0, 0);
 
     ctx.save();
-    ctx.font = MONO_STRONG;
-    ctx.fillStyle = colors.ink;
-    ctx.strokeStyle = colors.rule;
+    ctx.font = FONT_STRONG;
     ctx.lineWidth = 1;
 
     // Peak: only worth a label if the ball actually rose.
     if (peak.y > points[0].y + 0.002) {
       const [px, py] = this.toPx(peak.x, peak.y);
-      ctx.setLineDash([2, 3]);
-      line(ctx, crisp(px), py, crisp(px), this.toPx(0, 0)[1]);
+      ctx.strokeStyle = colors.rule;
+      ctx.setLineDash([2, 4]);
+      line(ctx, crisp(px), py + 6, crisp(px), ground);
       ctx.setLineDash([]);
+      ctx.fillStyle = colors.bg;
+      ctx.strokeStyle = colors.rust;
+      ctx.lineWidth = 2;
+      ring(ctx, px, py, 3.5);
+      ctx.fillStyle = colors.ink;
       ctx.textAlign = "center";
       ctx.textBaseline = "bottom";
       const peakHeight = scene.peakHeight ?? peak.y - scene.radius;
-      ctx.fillText(`peak ${formatLength(peakHeight)} m`, px, py - 10);
+      ctx.fillText(`Peak ${formatLength(peakHeight)} m`, px, py - 10);
     }
 
-    // Landing distance, just above the ball so the ball doesn't cover it
+    // Landing distance, beside the ball on the side away from the path
     const r = this.ballRadiusPx();
-    const [lx, ly] = this.toPx(last.x, 0);
-    const nearRightEdge = lx > this.width - 170;
-    ctx.fillStyle = colors.red;
-    ctx.textAlign = nearRightEdge ? "right" : "center";
-    ctx.textBaseline = "bottom";
-    ctx.fillText(`landed ${formatLength(last.x)} m`, nearRightEdge ? lx + r : lx, ly - 2 * r - 8);
+    const [lx] = this.toPx(last.x, 0);
+    const nearRightEdge = lx + r + 80 > MARGIN.left + this.bounds.plotW;
+    ctx.fillStyle = colors.rustInk;
+    ctx.textBaseline = "middle";
+    if (nearRightEdge) {
+      ctx.textAlign = "right";
+      ctx.fillText(`${formatLength(last.x)} m`, lx - r - 8, ground - Math.max(r, 8));
+    } else {
+      ctx.textAlign = "left";
+      ctx.fillText(`${formatLength(last.x)} m`, lx + r + 8, ground - Math.max(r, 8));
+    }
     ctx.restore();
   }
 
-  /** The ball: a flat grey disc with a red centre point. */
+  /** The ball, with a soft shadow on the floor that fades with height. */
   drawBall(p) {
     const { ctx, colors } = this;
     const [px, py] = this.toPx(p.x, p.y);
+    const [, ground] = this.toPx(0, 0);
+    const r = this.ballRadiusPx();
+
     ctx.save();
+    const lift = Math.min(1, (ground - py - r) / (this.bounds.plotH * 0.6));
+    ctx.globalAlpha = 0.22 * (1 - lift);
+    ctx.fillStyle = colors.ink;
+    ctx.beginPath();
+    ctx.ellipse(px, ground, r * (1.1 - lift * 0.4), Math.max(1.5, r * 0.22), 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+
     ctx.fillStyle = colors.ball;
-    dot(ctx, px, py, this.ballRadiusPx());
-    ctx.fillStyle = colors.red;
-    dot(ctx, px, py, 2.5);
+    ctx.strokeStyle = colors.ink;
+    ctx.lineWidth = 1.5;
+    ring(ctx, px, py, r);
+    ctx.fillStyle = colors.rust;
+    dot(ctx, px, py, 2);
     ctx.restore();
   }
 
-  /** Hovered point: red dot plus a blue dashed velocity arrow. */
+  /** Hovered point: a ring on the path plus the velocity arrow. */
   drawHover(p) {
     const { ctx, colors } = this;
     const [px, py] = this.toPx(p.x, p.y);
 
     // Arrow length grows with speed: 0.06 s of travel, at least 24 px.
-    const scale = this.pxPerMetre();
-    let dx = p.vx * 0.06 * scale;
-    let dy = -p.vy * 0.06 * (this.bounds.plotH / (this.bounds.yMax - this.bounds.yMin));
+    let dx = p.vx * 0.06 * this.pxPerMetre();
+    let dy = -p.vy * 0.06 * this.pxPerMetreY();
     const length = Math.hypot(dx, dy);
     if (length < 24) {
       dx *= 24 / (length || 1);
@@ -373,21 +506,25 @@ export class TrajectoryPlot {
     }
 
     ctx.save();
-    ctx.strokeStyle = colors.blue;
-    ctx.fillStyle = colors.blue;
-    ctx.lineWidth = 1;
-    ctx.setLineDash([3, 3]);
-    line(ctx, px, py, px + dx, py + dy);
-    ctx.setLineDash([]);
-    arrowHead(ctx, px + dx, py + dy, Math.atan2(dy, dx));
+    ctx.strokeStyle = colors.slate;
+    ctx.fillStyle = colors.slate;
+    ctx.lineWidth = 1.75;
+    ctx.lineCap = "round";
+    const tipX = px + dx;
+    const tipY = py + dy;
+    const angle = Math.atan2(dy, dx);
+    line(ctx, px, py, tipX - 5 * Math.cos(angle), tipY - 5 * Math.sin(angle));
+    arrowHead(ctx, tipX, tipY, angle);
 
-    ctx.fillStyle = colors.red;
-    dot(ctx, px, py, 3.5);
+    ctx.fillStyle = colors.bg;
+    ctx.strokeStyle = colors.rust;
+    ctx.lineWidth = 2;
+    ring(ctx, px, py, 4.5);
     ctx.restore();
   }
 
-  /** Ball position at time t, interpolated between sampled points. */
-  positionAt(t) {
+  /** Ball position and velocity at time t, interpolated between sampled points. */
+  stateAt(t) {
     const pts = this.scene.points;
     if (t <= 0) return pts[0];
     for (let i = 1; i < pts.length; i++) {
@@ -395,7 +532,8 @@ export class TrajectoryPlot {
         const a = pts[i - 1];
         const b = pts[i];
         const f = (t - a.t) / (b.t - a.t || 1);
-        return { t, x: a.x + f * (b.x - a.x), y: a.y + f * (b.y - a.y) };
+        const mix = (k) => a[k] + f * (b[k] - a[k]);
+        return { t, x: mix("x"), y: mix("y"), vx: mix("vx"), vy: mix("vy") };
       }
     }
     return pts.at(-1);
@@ -404,7 +542,7 @@ export class TrajectoryPlot {
   /* ---------- Hover tooltip ---------- */
 
   onPointerMove(event) {
-    if (!this.scene) return;
+    if (!this.scene || event.pointerType === "touch") return;
     const rect = this.canvas.getBoundingClientRect();
     const mx = event.clientX - rect.left;
     const my = event.clientY - rect.top;
@@ -448,11 +586,13 @@ export class TrajectoryPlot {
       .join("")}</dl>`;
     this.tooltip.hidden = false;
 
-    // Place it next to the point, flipping sides near the edges.
+    // Place it on the side away from the velocity arrow, then keep it inside.
     const [px, py] = this.toPx(p.x, p.y);
     const { offsetWidth: w, offsetHeight: h } = this.tooltip;
-    const left = px + 20 + w > this.width ? px - 20 - w : px + 20;
-    const top = Math.min(Math.max(8, py + 16), this.height - h - 8);
+    let left = p.vx > 0 ? px - 20 - w : px + 20;
+    if (left < 8) left = px + 20;
+    if (left + w > this.width - 8) left = px - 20 - w;
+    const top = Math.min(Math.max(8, p.vy < 0 ? py - 16 - h : py + 16), this.height - h - 8);
     this.tooltip.style.left = `${left}px`;
     this.tooltip.style.top = `${top}px`;
   }
@@ -477,11 +617,19 @@ function dot(ctx, x, y, r) {
   ctx.fill();
 }
 
-function arrowHead(ctx, x, y, angle, size = 7) {
+/** A filled circle with an outline (uses the current fill and stroke). */
+function ring(ctx, x, y, r) {
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+}
+
+function arrowHead(ctx, x, y, angle, size = 8) {
   ctx.beginPath();
   ctx.moveTo(x, y);
-  ctx.lineTo(x - size * Math.cos(angle - 0.4), y - size * Math.sin(angle - 0.4));
-  ctx.lineTo(x - size * Math.cos(angle + 0.4), y - size * Math.sin(angle + 0.4));
+  ctx.lineTo(x - size * Math.cos(angle - 0.42), y - size * Math.sin(angle - 0.42));
+  ctx.lineTo(x - size * Math.cos(angle + 0.42), y - size * Math.sin(angle + 0.42));
   ctx.closePath();
   ctx.fill();
 }

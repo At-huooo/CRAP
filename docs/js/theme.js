@@ -13,7 +13,6 @@ const STORAGE_KEY = "crap.theme";
 
 export function setupThemeToggle() {
   const button = document.getElementById("theme-toggle");
-  const label = button.querySelector(".theme-toggle__label");
   const system = window.matchMedia("(prefers-color-scheme: dark)");
 
   function current() {
@@ -24,7 +23,9 @@ export function setupThemeToggle() {
     document.documentElement.dataset.theme = theme;
     button.setAttribute("aria-pressed", String(theme === "dark"));
     // The label names what a click switches to.
-    label.textContent = theme === "dark" ? "Light mode" : "Dark mode";
+    const label = theme === "dark" ? "Switch to light mode" : "Switch to dark mode";
+    button.setAttribute("aria-label", label);
+    button.title = label;
     window.dispatchEvent(new Event("themechange"));
   }
 

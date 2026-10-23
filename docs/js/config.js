@@ -6,7 +6,7 @@
      talks to the FastAPI server on port 8000.
    - On GitHub Pages it uses PRODUCTION_API_BASE. Put your
      Render URL there once the backend is deployed.
-   - Anyone can override it from the server pill in the top
+   - Anyone can override it from the server button in the top
      bar, or with ?api=https://... in the page URL. The
      override is remembered in this browser.
    ========================================================= */

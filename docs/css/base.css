@@ -4,10 +4,13 @@
    defaults. Every other stylesheet uses these variables, so
    a colour change only happens here.
 
-   Look: plain paper, near-black ink, grey for secondary
-   text, thin translucent rules, and two signal colours:
-   red for the flight path and key numbers, blue for things
-   worked out for you (auto-filled values, vectors, target).
+   Palette: cool blue-grey surfaces and a deep navy for text
+   and the results band. The logo's rust is the one accent:
+   brand, flight path, primary action and the answer. A
+   clearer blue marks values worked out for you (auto-filled
+   speed, target, velocity arrow).
+
+   No gradients anywhere: every fill is a flat colour.
 
    Themes: js/theme-init.js sets <html data-theme="light|dark">
    before the page draws, from the saved choice or the system
@@ -18,79 +21,116 @@
   color-scheme: light;
 
   /* Palette */
-  --paper:        #fafafa;   /* page background */
-  --ink:          #1a1a1a;   /* main text, primary button */
-  --ink-strong:   #000000;   /* primary button hover */
-  --grey:         #5f5f5f;   /* secondary text (5.9:1 on paper) */
-  --grey-soft:    #8a8a8a;   /* placeholders, minor labels */
-  --rule:         rgb(26 26 26 / 0.28);   /* borders and dividers */
-  --rule-soft:    #e2e2e2;
-  --fill:         #f0f0f0;   /* hover fills */
-  --field-focus:  #ffffff;   /* input background while typing */
-  --red:          #c9171c;
-  --blue:         #0966c7;
+  --paper:        #dae2ea;   /* page background: cool blue-grey */
+  --surface:      #eef2f6;   /* cards */
+  --surface-2:    #e2e8ef;   /* hover fills, badges */
+  --field:        #f8fafc;   /* input background */
+  --ink:          #1f2d3d;   /* main text: deep navy */
+  --ink-strong:   #111c28;
+  --grey:         #536274;   /* secondary text: 5.6:1 on surface */
+  --grey-soft:    #8592a1;   /* placeholders, minor labels */
+  --rule:         rgb(31 45 61 / 0.12);
+  --rule-strong:  rgb(31 45 61 / 0.26);
 
-  /* The dark results band */
-  --band:         #1a1a1a;
-  --band-ink:     #fafafa;
-  --band-soft:    rgb(255 255 255 / 0.68);
-  --band-rule:    rgb(255 255 255 / 0.2);
-  --band-red:     #ff4a4f;
+  --rust:         #c84a27;   /* the logo's rust: brand, flight path, primary action */
+  --rust-strong:  #b23f1f;   /* primary button hover */
+  --rust-ink:     #a63a1c;   /* rust for small text */
+  --rust-soft:    rgb(200 74 39 / 0.1);
+  --on-rust:      #fffaf6;
+
+  --slate:        #2a62a3;   /* computed values: a clearer blue */
+  --slate-soft:   rgb(42 98 163 / 0.1);
+
+  /* The results band */
+  --band:         #1f2d3d;
+  --band-ink:     #eef2f6;
+  --band-soft:    rgb(238 242 246 / 0.64);
+  --band-rule:    rgb(238 242 246 / 0.14);
+  --band-accent:  #f0805e;   /* rust, lifted for the dark band */
 
   /* Plot colours (read by js/plot.js) */
-  --plot-grid:    rgb(26 26 26 / 0.08);
-  --plot-ball:    #d2d2d2;
+  --plot-bg:      #f6f8fb;
+  --plot-grid:    rgb(31 45 61 / 0.07);
+  --plot-ball:    #ffffff;
+  --plot-stand:   #c9d3de;
 
-  /* Type */
-  --font-sans: "Geist", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  /* Elevation: soft "sticker" shadows */
+  --shadow-sm: 0 1px 1px rgb(31 45 61 / 0.06), 0 1px 3px rgb(31 45 61 / 0.08);
+  --shadow:    0 1px 2px rgb(31 45 61 / 0.06), 0 4px 14px rgb(31 45 61 / 0.08);
+  --shadow-lg: 0 2px 4px rgb(0 0 0 / 0.08), 0 16px 40px rgb(17 28 40 / 0.22);
 
-  --text-label: 0.8125rem;  /* 13px  mono labels, buttons, units */
-  --text-note:  0.875rem;   /* 14px  hints under fields */
-  --text-sm:    1rem;       /* 16px  body copy, field labels */
-  --text-md:    1.125rem;   /* 18px  inputs, group titles */
-  --text-lg:    1.75rem;    /* 28px  stats */
-  --text-xl:    3.5rem;     /* 56px  result answer */
+  /* Type: hand-drawn display face for headings, a clean sans for everything else */
+  --font-sans: "Inter Tight", "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-hand: "Shantell Sans", "Comic Neue", "Segoe Print", "Bradley Hand", var(--font-sans);
+  --hand-axes: "INFM" 100, "BNCE" 40;   /* informal letterforms, a little bounce */
+
+  --text-xs:  0.75rem;     /* 12px  axis labels, captions */
+  --text-sm:  0.8125rem;   /* 13px  notes, labels */
+  --text-md:  0.9375rem;   /* 15px  body, inputs */
+  --text-lg:  1.1875rem;   /* 19px  card titles */
+  --text-xl:  1.625rem;    /* 26px  stats */
+  --text-2xl: clamp(2.75rem, 5vw, 4.25rem);   /* the answer */
+
+  --tracking-tight:   -0.01em;
+  --tracking-display: -0.04em;
 
   /* Spacing */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
   --space-4: 16px;
-  --space-5: 24px;
-  --space-6: 32px;
-  --space-7: 48px;
-  --space-8: 72px;
+  --space-5: 20px;
+  --space-6: 28px;
+  --space-7: 40px;
+  --space-8: 64px;
 
-  --radius: 3px;           /* buttons and inputs: barely rounded */
-  --gutter: clamp(16px, 3vw, 40px);
+  --radius-sm: 8px;        /* inputs */
+  --radius:    10px;       /* buttons */
+  --radius-lg: 18px;       /* cards */
+  --radius-pill: 999px;
+
+  --gutter: clamp(16px, 2.5vw, 32px);
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
 /* ---------- Dark theme ---------- */
 :root[data-theme="dark"] {
   color-scheme: dark;
 
-  --paper:        #111111;
-  --ink:          #ededed;
+  --paper:        #111923;
+  --surface:      #19232f;
+  --surface-2:    #233041;
+  --field:        #141d27;
+  --ink:          #e3eaf1;
   --ink-strong:   #ffffff;
-  --grey:         #a8a8a8;
-  --grey-soft:    #7a7a7a;
-  --rule:         rgb(255 255 255 / 0.24);
-  --rule-soft:    #2a2a2a;
-  --fill:         #1d1d1d;
-  --field-focus:  #000000;
-  --red:          #ff4a4f;
-  --blue:         #5aa2ff;
+  --grey:         #9aa8b7;
+  --grey-soft:    #6f7d8c;
+  --rule:         rgb(227 234 241 / 0.1);
+  --rule-strong:  rgb(227 234 241 / 0.22);
 
-  /* In dark mode the band is a raised panel instead of a black block */
-  --band:         #1d1d1d;
-  --band-ink:     #ededed;
-  --band-soft:    rgb(255 255 255 / 0.62);
-  --band-rule:    rgb(255 255 255 / 0.16);
-  --band-red:     #ff4a4f;
+  --rust:         #d9572f;
+  --rust-strong:  #e5673f;
+  --rust-ink:     #f0805e;
+  --rust-soft:    rgb(240 128 94 / 0.14);
+  --on-rust:      #fffaf6;
 
-  --plot-grid:    rgb(255 255 255 / 0.08);
-  --plot-ball:    #5a5a5a;
+  --slate:        #8db8e8;
+  --slate-soft:   rgb(141 184 232 / 0.14);
+
+  --band:         #1f2c3b;
+  --band-ink:     #edf1f5;
+  --band-soft:    rgb(237 241 245 / 0.6);
+  --band-rule:    rgb(237 241 245 / 0.12);
+  --band-accent:  #f0805e;
+
+  --plot-bg:      #151e29;
+  --plot-grid:    rgb(227 234 241 / 0.06);
+  --plot-ball:    #e3eaf1;
+  --plot-stand:   #2b394a;
+
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.35);
+  --shadow:    0 1px 2px rgb(0 0 0 / 0.35), 0 6px 18px rgb(0 0 0 / 0.3);
+  --shadow-lg: 0 2px 4px rgb(0 0 0 / 0.4), 0 20px 48px rgb(0 0 0 / 0.55);
 }
 
 /* ---------- Reset ---------- */
@@ -113,9 +153,12 @@ body {
   background: var(--paper);
   color: var(--ink);
   font-family: var(--font-sans);
-  font-size: var(--text-sm);
-  line-height: 1.5;
+  font-size: var(--text-md);
+  font-feature-settings: "ss01", "cv11";
+  letter-spacing: var(--tracking-tight);
+  line-height: 1.45;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 img,
@@ -129,6 +172,7 @@ input,
 button {
   font: inherit;
   color: inherit;
+  letter-spacing: inherit;
 }
 
 button {
@@ -143,8 +187,20 @@ p {
   max-width: 68ch;
 }
 
+::selection {
+  background: var(--rust-soft);
+}
+
 /* Keyboard focus, everywhere */
 :focus-visible {
-  outline: 2px solid var(--blue);
+  outline: 2px solid var(--rust);
   outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+  }
 }

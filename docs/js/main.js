@@ -52,7 +52,7 @@ let currentMode = null;
 
 /* ---------- Mode tabs ---------- */
 
-const tabs = document.querySelectorAll(".mode-switch__tab");
+const tabs = document.querySelectorAll(".segmented__tab");
 
 function switchMode(name, options = {}) {
   if (!modes[name]) name = "trajectory";
@@ -80,7 +80,7 @@ for (const tab of tabs) {
 }
 
 // Arrow keys move between tabs, as expected for a tab list.
-document.querySelector(".mode-switch").addEventListener("keydown", (event) => {
+document.querySelector(".segmented").addEventListener("keydown", (event) => {
   if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
   const list = [...tabs];
   const index = list.findIndex((t) => t.dataset.mode === currentMode);

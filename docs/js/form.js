@@ -1,6 +1,5 @@
 /* =========================================================
-
-form.js
+   form.js
    Builds a mode's form from a list of groups, keeps every
    input in sync with the shared store, and offers small
    helpers to show errors and notes under fields.
@@ -71,8 +70,7 @@ export function buildForm(form, groups, store, idPrefix) {
     if (group.resettable) {
       const reset = document.createElement("button");
       reset.type = "button";
-      reset.className = "button button--small";
-      reset.style.marginTop = "var(--space-4)";
+      reset.className = "button button--ghost group__reset";
       reset.textContent = "Reset to defaults";
       reset.addEventListener("click", () => store.reset(group.params));
       root.append(reset);
