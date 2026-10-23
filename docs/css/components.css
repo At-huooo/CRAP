@@ -6,7 +6,7 @@
    dialog.
 
    Look: cool flat surfaces, rounded cards with a light
-   shadow, one rust accent, no gradients. Headings are
+   shadow, one muted blue accent, no gradients. Headings are
    handwritten to match the logo; numbers stay plain.
    ========================================================= */
 
@@ -20,9 +20,14 @@
   text-decoration: none;
 }
 
+/* The traced logo, used as a mask so it takes the accent colour */
 .brand__mark {
-  width: auto;
+  display: block;
+  width: 85px;
   height: 30px;
+  background: var(--accent);
+  -webkit-mask: url("../assets/wordmark.svg") center / contain no-repeat;
+  mask: url("../assets/wordmark.svg") center / contain no-repeat;
 }
 
 .brand__name {
@@ -114,9 +119,9 @@
   background: var(--grey-soft);
 }
 
-.server-status[data-state="online"]  .server-status__dot { background: #4f8a5b; }
+.server-status[data-state="online"]  .server-status__dot { background: #5e8f5a; }
 .server-status[data-state="offline"] .server-status__dot,
-.server-status[data-state="blocked"] .server-status__dot { background: var(--rust); }
+.server-status[data-state="blocked"] .server-status__dot { background: var(--accent); }
 .server-status[data-state="checking"] .server-status__dot,
 .server-status[data-state="waking"]   .server-status__dot { animation: pulse 1.2s ease-in-out infinite; }
 
@@ -245,7 +250,7 @@
 }
 
 .switch input:focus-visible + .switch__track {
-  outline: 2px solid var(--rust);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
@@ -282,13 +287,13 @@
 
 .button--primary {
   border-color: transparent;
-  background: var(--rust);
-  color: var(--on-rust);
-  box-shadow: 0 1px 2px rgb(120 40 15 / 0.22), 0 3px 8px rgb(120 40 15 / 0.12);
+  background: var(--accent);
+  color: var(--on-accent);
+  box-shadow: 0 1px 2px rgb(40 60 90 / 0.2), 0 3px 8px rgb(40 60 90 / 0.12);
 }
 
 .button--primary:hover:not(:disabled) {
-  background: var(--rust-strong);
+  background: var(--accent-strong);
 }
 
 .button--ghost {
@@ -478,8 +483,8 @@ details.group:not([open]) {
 }
 
 .field__control:focus-within {
-  border-color: var(--rust);
-  box-shadow: 0 0 0 3px var(--rust-soft);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
 .field__input {
@@ -519,26 +524,26 @@ details.group:not([open]) {
 
 .field__note[data-tone="error"],
 .field__note[data-tone="warn"] {
-  color: var(--rust-ink);
+  color: var(--accent-ink);
 }
 
 .field__note[data-tone="auto"] {
-  color: var(--slate);
+  color: var(--computed);
 }
 
 .field[data-state="error"] .field__control {
-  border-color: var(--rust-ink);
-  background: var(--rust-soft);
+  border-color: var(--accent-ink);
+  background: var(--accent-soft);
 }
 
 /* Launch speed filled in from the ramp */
 .field[data-auto="true"] .field__control {
-  border-color: color-mix(in srgb, var(--slate) 55%, transparent);
-  background: var(--slate-soft);
+  border-color: color-mix(in srgb, var(--computed) 55%, transparent);
+  background: var(--computed-soft);
 }
 
 .field[data-auto="true"] .field__input {
-  color: var(--slate);
+  color: var(--computed);
   font-weight: 500;
 }
 
@@ -641,7 +646,7 @@ details.group:not([open]) {
 
 .scrubber__fill {
   width: var(--progress);
-  background: var(--rust);
+  background: var(--accent);
 }
 
 .scrubber {
@@ -680,7 +685,7 @@ details.group:not([open]) {
   margin-top: -6px;
   border: 3px solid var(--surface);
   border-radius: 50%;
-  background: var(--rust);
+  background: var(--accent);
   box-shadow: 0 1px 3px rgb(0 0 0 / 0.25);
   appearance: none;
   -webkit-appearance: none;
@@ -691,7 +696,7 @@ details.group:not([open]) {
   height: 10px;
   border: 3px solid var(--surface);
   border-radius: 50%;
-  background: var(--rust);
+  background: var(--accent);
   box-shadow: 0 1px 3px rgb(0 0 0 / 0.25);
 }
 
@@ -700,12 +705,12 @@ details.group:not([open]) {
 }
 
 .scrubber:focus-visible::-webkit-slider-thumb {
-  outline: 2px solid var(--rust);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
 .scrubber:focus-visible::-moz-range-thumb {
-  outline: 2px solid var(--rust);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
@@ -757,13 +762,13 @@ details.group:not([open]) {
 
 .swatch {
   width: 18px;
-  border-top: 2px solid var(--rust);
+  border-top: 2px solid var(--accent);
   border-radius: 1px;
 }
 
 .swatch--ghost  { border-top: 2px dashed var(--grey-soft); }
-.swatch--target { border-top: 1.5px dashed var(--slate); }
-.swatch--vector { position: relative; width: 14px; border-top: 1.5px solid var(--slate); }
+.swatch--target { border-top: 1.5px dashed var(--computed); }
+.swatch--vector { position: relative; width: 14px; border-top: 1.5px solid var(--computed); }
 
 .swatch--vector::after {
   content: "";
@@ -771,7 +776,7 @@ details.group:not([open]) {
   top: -4.5px;
   right: -3px;
   border: 3.5px solid transparent;
-  border-left: 5px solid var(--slate);
+  border-left: 5px solid var(--computed);
 }
 
 /* ---------- Results ---------- */
@@ -917,15 +922,15 @@ details.group:not([open]) {
 
 .message[data-tone="error"]::before,
 .message[data-tone="warn"]::before {
-  background: var(--rust);
+  background: var(--accent);
 }
 
 .message[data-tone="error"] {
-  background: color-mix(in srgb, var(--rust) 8%, var(--surface));
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
 }
 
 .message[data-tone="error"] .message__title {
-  color: var(--rust-ink);
+  color: var(--accent-ink);
 }
 
 /* ---------- Dialog ---------- */
@@ -941,7 +946,7 @@ details.group:not([open]) {
 }
 
 .dialog::backdrop {
-  background: rgb(17 28 40 / 0.45);
+  background: rgb(46 52 64 / 0.4);
 }
 
 .dialog__body {
@@ -970,11 +975,11 @@ details.group:not([open]) {
 }
 
 .dialog__status[data-tone="error"] {
-  color: var(--rust-ink);
+  color: var(--accent-ink);
 }
 
 .dialog__status[data-tone="ok"] {
-  color: #4f8a5b;
+  color: #5e8f5a;
 }
 
 .dialog__actions {

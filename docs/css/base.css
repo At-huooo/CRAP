@@ -4,11 +4,12 @@
    defaults. Every other stylesheet uses these variables, so
    a colour change only happens here.
 
-   Palette: cool blue-grey surfaces and a deep navy for text
-   and the results band. The logo's rust is the one accent:
-   brand, flight path, primary action and the answer. A
-   clearer blue marks values worked out for you (auto-filled
-   speed, target, velocity arrow).
+   Palette: soft Nordic, after Nord's snow storm and polar
+   night. Pale snow-grey surfaces and slate text; a muted
+   fjord blue is the one accent (logo, flight path, primary
+   action). The results band is polar night with the answer
+   in frost blue. Soft sage marks values worked out for you
+   (auto-filled speed, target, velocity arrow).
 
    No gradients anywhere: every fill is a flat colour.
 
@@ -20,48 +21,48 @@
 :root {
   color-scheme: light;
 
-  /* Palette */
-  --paper:        #dae2ea;   /* page background: cool blue-grey */
-  --surface:      #eef2f6;   /* cards */
-  --surface-2:    #e2e8ef;   /* hover fills, badges */
-  --field:        #f8fafc;   /* input background */
-  --ink:          #1f2d3d;   /* main text: deep navy */
-  --ink-strong:   #111c28;
-  --grey:         #536274;   /* secondary text: 5.6:1 on surface */
-  --grey-soft:    #8592a1;   /* placeholders, minor labels */
-  --rule:         rgb(31 45 61 / 0.12);
-  --rule-strong:  rgb(31 45 61 / 0.26);
+  /* Palette: Nord's snow storm and polar night, softened */
+  --paper:        #e5e9f0;   /* page background: snow grey */
+  --surface:      #f4f6f9;   /* cards */
+  --surface-2:    #eaeef3;   /* hover fills, badges */
+  --field:        #fbfcfd;   /* input background */
+  --ink:          #2e3440;   /* main text: polar night */
+  --ink-strong:   #1f232b;
+  --grey:         #5b6475;   /* secondary text: 5.6:1 on cards */
+  --grey-soft:    #8a93a3;   /* placeholders, minor labels */
+  --rule:         rgb(46 52 64 / 0.11);
+  --rule-strong:  rgb(46 52 64 / 0.24);
 
-  --rust:         #c84a27;   /* the logo's rust: brand, flight path, primary action */
-  --rust-strong:  #b23f1f;   /* primary button hover */
-  --rust-ink:     #a63a1c;   /* rust for small text */
-  --rust-soft:    rgb(200 74 39 / 0.1);
-  --on-rust:      #fffaf6;
+  --accent:        #4f6f98;   /* fjord blue: logo, flight path, primary action */
+  --accent-strong: #435f84;   /* primary button hover */
+  --accent-ink:    #46658c;   /* accent for small text */
+  --accent-soft:   rgb(79 111 152 / 0.12);
+  --on-accent:     #ffffff;
 
-  --slate:        #2a62a3;   /* computed values: a clearer blue */
-  --slate-soft:   rgb(42 98 163 / 0.1);
+  --computed:      #4f6e4d;   /* values worked out for you: soft sage */
+  --computed-soft: rgb(79 110 77 / 0.1);
 
-  /* The results band */
-  --band:         #1f2d3d;
-  --band-ink:     #eef2f6;
-  --band-soft:    rgb(238 242 246 / 0.64);
-  --band-rule:    rgb(238 242 246 / 0.14);
-  --band-accent:  #f0805e;   /* rust, lifted for the dark band */
+  /* The results band: polar night with a frost-blue answer */
+  --band:         #2e3440;
+  --band-ink:     #eceff4;
+  --band-soft:    rgb(236 239 244 / 0.64);
+  --band-rule:    rgb(236 239 244 / 0.13);
+  --band-accent:  #88c0d0;
 
   /* Plot colours (read by js/plot.js) */
-  --plot-bg:      #f6f8fb;
-  --plot-grid:    rgb(31 45 61 / 0.07);
+  --plot-bg:      #fafbfc;
+  --plot-grid:    rgb(46 52 64 / 0.06);
   --plot-ball:    #ffffff;
-  --plot-stand:   #c9d3de;
+  --plot-stand:   #d8dee9;
 
   /* Elevation: soft "sticker" shadows */
-  --shadow-sm: 0 1px 1px rgb(31 45 61 / 0.06), 0 1px 3px rgb(31 45 61 / 0.08);
-  --shadow:    0 1px 2px rgb(31 45 61 / 0.06), 0 4px 14px rgb(31 45 61 / 0.08);
-  --shadow-lg: 0 2px 4px rgb(0 0 0 / 0.08), 0 16px 40px rgb(17 28 40 / 0.22);
+  --shadow-sm: 0 1px 1px rgb(46 52 64 / 0.05), 0 1px 3px rgb(46 52 64 / 0.07);
+  --shadow:    0 1px 2px rgb(46 52 64 / 0.05), 0 4px 14px rgb(46 52 64 / 0.07);
+  --shadow-lg: 0 2px 4px rgb(0 0 0 / 0.08), 0 16px 40px rgb(46 52 64 / 0.2);
 
   /* Type: hand-drawn display face for headings, a clean sans for everything else */
   --font-sans: "Inter Tight", "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  --font-hand: "Shantell Sans", "Comic Neue", "Segoe Print", "Bradley Hand", var(--font-sans);
+  --font-hand: "Short Stack", "Comic Neue", "Segoe Print", "Bradley Hand", var(--font-sans);
   --hand-axes: "INFM" 100, "BNCE" 40;   /* informal letterforms, a little bounce */
 
   --text-xs:  0.75rem;     /* 12px  axis labels, captions */
@@ -97,36 +98,36 @@
 :root[data-theme="dark"] {
   color-scheme: dark;
 
-  --paper:        #111923;
-  --surface:      #19232f;
-  --surface-2:    #233041;
-  --field:        #141d27;
-  --ink:          #e3eaf1;
+  --paper:        #242933;
+  --surface:      #2e3440;
+  --surface-2:    #3b4252;
+  --field:        #282d38;
+  --ink:          #eceff4;
   --ink-strong:   #ffffff;
-  --grey:         #9aa8b7;
-  --grey-soft:    #6f7d8c;
-  --rule:         rgb(227 234 241 / 0.1);
-  --rule-strong:  rgb(227 234 241 / 0.22);
+  --grey:         #a7b0c0;
+  --grey-soft:    #7b8494;
+  --rule:         rgb(236 239 244 / 0.09);
+  --rule-strong:  rgb(236 239 244 / 0.2);
 
-  --rust:         #d9572f;
-  --rust-strong:  #e5673f;
-  --rust-ink:     #f0805e;
-  --rust-soft:    rgb(240 128 94 / 0.14);
-  --on-rust:      #fffaf6;
+  --accent:        #88a9cc;   /* frost blue, with dark text on buttons */
+  --accent-strong: #9bb8d6;
+  --accent-ink:    #9bb8d6;
+  --accent-soft:   rgb(136 169 204 / 0.16);
+  --on-accent:     #1f232b;
 
-  --slate:        #8db8e8;
-  --slate-soft:   rgb(141 184 232 / 0.14);
+  --computed:      #a3be8c;   /* aurora green */
+  --computed-soft: rgb(163 190 140 / 0.14);
 
-  --band:         #1f2c3b;
-  --band-ink:     #edf1f5;
-  --band-soft:    rgb(237 241 245 / 0.6);
-  --band-rule:    rgb(237 241 245 / 0.12);
-  --band-accent:  #f0805e;
+  --band:         #3b4252;
+  --band-ink:     #eceff4;
+  --band-soft:    rgb(236 239 244 / 0.62);
+  --band-rule:    rgb(236 239 244 / 0.12);
+  --band-accent:  #88c0d0;
 
-  --plot-bg:      #151e29;
-  --plot-grid:    rgb(227 234 241 / 0.06);
-  --plot-ball:    #e3eaf1;
-  --plot-stand:   #2b394a;
+  --plot-bg:      #2a303b;
+  --plot-grid:    rgb(236 239 244 / 0.05);
+  --plot-ball:    #eceff4;
+  --plot-stand:   #3b4252;
 
   --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.35);
   --shadow:    0 1px 2px rgb(0 0 0 / 0.35), 0 6px 18px rgb(0 0 0 / 0.3);
@@ -188,12 +189,12 @@ p {
 }
 
 ::selection {
-  background: var(--rust-soft);
+  background: var(--accent-soft);
 }
 
 /* Keyboard focus, everywhere */
 :focus-visible {
-  outline: 2px solid var(--rust);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 

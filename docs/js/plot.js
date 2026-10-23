@@ -224,9 +224,9 @@ export class TrajectoryPlot {
       bg: v("--plot-bg"),
       ball: v("--plot-ball"),
       stand: v("--plot-stand"),
-      rust: v("--rust"),
-      rustInk: v("--rust-ink"),
-      slate: v("--slate"),
+      accent: v("--accent"),
+      accentInk: v("--accent-ink"),
+      computed: v("--computed"),
     };
   }
 
@@ -357,7 +357,7 @@ export class TrajectoryPlot {
     const done = this.time >= this.flightTime();
 
     ctx.save();
-    ctx.strokeStyle = colors.rust;
+    ctx.strokeStyle = colors.accent;
     ctx.lineWidth = 2.5;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
@@ -392,8 +392,8 @@ export class TrajectoryPlot {
     const top = MARGIN.top + 22;
 
     ctx.save();
-    ctx.strokeStyle = colors.slate;
-    ctx.fillStyle = colors.slate;
+    ctx.strokeStyle = colors.computed;
+    ctx.fillStyle = colors.computed;
     ctx.lineWidth = 1.25;
     ctx.setLineDash([4, 4]);
     line(ctx, crisp(px), top, crisp(px), ground);
@@ -440,7 +440,7 @@ export class TrajectoryPlot {
       line(ctx, crisp(px), py + 6, crisp(px), ground);
       ctx.setLineDash([]);
       ctx.fillStyle = colors.bg;
-      ctx.strokeStyle = colors.rust;
+      ctx.strokeStyle = colors.accent;
       ctx.lineWidth = 2;
       ring(ctx, px, py, 3.5);
       ctx.fillStyle = colors.ink;
@@ -454,7 +454,7 @@ export class TrajectoryPlot {
     const r = this.ballRadiusPx();
     const [lx] = this.toPx(last.x, 0);
     const nearRightEdge = lx + r + 80 > MARGIN.left + this.bounds.plotW;
-    ctx.fillStyle = colors.rustInk;
+    ctx.fillStyle = colors.accentInk;
     ctx.textBaseline = "middle";
     if (nearRightEdge) {
       ctx.textAlign = "right";
@@ -486,7 +486,7 @@ export class TrajectoryPlot {
     ctx.strokeStyle = colors.ink;
     ctx.lineWidth = 1.5;
     ring(ctx, px, py, r);
-    ctx.fillStyle = colors.rust;
+    ctx.fillStyle = colors.accent;
     dot(ctx, px, py, 2);
     ctx.restore();
   }
@@ -506,8 +506,8 @@ export class TrajectoryPlot {
     }
 
     ctx.save();
-    ctx.strokeStyle = colors.slate;
-    ctx.fillStyle = colors.slate;
+    ctx.strokeStyle = colors.computed;
+    ctx.fillStyle = colors.computed;
     ctx.lineWidth = 1.75;
     ctx.lineCap = "round";
     const tipX = px + dx;
@@ -517,7 +517,7 @@ export class TrajectoryPlot {
     arrowHead(ctx, tipX, tipY, angle);
 
     ctx.fillStyle = colors.bg;
-    ctx.strokeStyle = colors.rust;
+    ctx.strokeStyle = colors.accent;
     ctx.lineWidth = 2;
     ring(ctx, px, py, 4.5);
     ctx.restore();
