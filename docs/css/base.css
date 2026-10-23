@@ -85,9 +85,9 @@
   --space-7: 40px;
   --space-8: 64px;
 
-  --radius-sm: 8px;        /* inputs */
-  --radius:    10px;       /* buttons */
-  --radius-lg: 18px;       /* cards */
+  --radius-sm: 6px;        /* inputs */
+  --radius:    8px;       /* buttons */
+  --radius-lg: 12px;       /* cards */
   --radius-pill: 999px;
 
   --gutter: clamp(16px, 2.5vw, 32px);
